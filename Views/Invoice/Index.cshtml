@@ -1,0 +1,185 @@
+﻿@model SalesViewModels
+@using POSebda3.Services
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var x = Generator.gen();
+    
+}
+
+   <!-- container -->
+    <div class="container">
+        <div class="row bg-success m-1 block">
+            <div class="text-center col-md-12">
+                <h1><i class="fab fa-product-hunt"></i> Invoice <span id="countpro"></span></h1>
+            </div>
+        </div>
+
+        <!-- Head of Invoice -->
+        <div class="row bg-secondary m-1 block" >
+      
+            <div class="col-md-2 col-sm-12"  style="margin: 3px;">
+                        <div>
+                    <label id="gene">Proccess no.</label>
+ <input class="form-control"  id="geneid" value="@x" readonly />
+  
+ </div>
+           
+            </div>
+        
+
+<div class="col-md-4">
+ <div class="form-group">
+<label>Date</label>
+ <input class="form-control" type="date" id="DateId" readonly  value="@(DateTime.Now.ToString("yyyyy-MM-dd"))" />
+ </div>
+ </div>
+
+<div class="col-md-2 col-sm-12"  style="margin: 3px;">
+    <div>
+ <label id="TotalInvoice"> Total invoice </label>
+ <input class="form-control"  id="TotalInvoiceid" value="0" readonly />
+  
+ </div>
+ </div>
+ </div>
+       
+        <!-- End Head of Invoice -->
+
+        <!-- Product -->
+
+        <div class="row bg-secondary m-1 block">
+
+            <div class="col-md-2 col-sm-12">
+<label id="lbcate">Category</label>
+            <select class="form-control" asp-items="@(new SelectList(Model.CategoryList,"Id","CategoryName"))" id="ddlCategoryId" onchange="ShowProduct()">
+                <option value="">أختر أسم الفئة</option>
+            </select>
+            </div>
+            <div class="col-md-4 col-sm-12">
+        <label id="lbProduct"> Product Name</label>
+            <select class="form-control" id="ddlProduct" onchange="ShowPrice()">
+                <option value="">أختر أسم الصنف</option>
+            </select>
+            </div>
+
+            <div class="col-md-2 col-sm-12">
+                <label id="lbqutity">Quntity</label>
+                <input type="number" class="form-control" value="0" id="quntity" onkeyup="GetTotal()" onchange="GetTotal()">
+            </div>
+
+            <div class="col-md-2 col-sm-12">
+                <label id="lbPrice">Price</label>
+                <input type="number" class="form-control" value="0" id="price" onkeyup="GetTotal()" onchange="GetTotal()">
+            </div>
+
+            
+            <div class="col-md-2 col-sm-12">
+                <label>Total</label>
+                <input type="number" class="form-control bg-danger text-center" disabled value="0" id="total">
+            </div>
+
+            <div class="text-center col-md-12 " style="margin-top: 10px;">
+
+                
+                 <div class="row bg-secondary m-1 block ">
+
+                        <div class="col-md-2"> 
+                            <label>Avaliable Qty</label>
+                         </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control  text-center"  id="qty_ava" readonly>
+                        </div>
+                                <button class="btn btn-dark w-25" onclick="ResetData()" style="margin-left: 10px;">
+                                  Remove
+                                </button>
+                                <button class="btn btn-success w-25" onclick="return Valid_Product();" id="btnAppend" style="margin-left: 10px;">
+                                  Append
+                                </button>
+                </div>    
+
+             </div>
+
+        </div>
+
+        <!-- End Product -->
+
+        <!-- Table -->
+     
+        <div class="row bg-secondary m-1 block" id="divPrint">
+            <div class="col-md-12">
+                <table class="table table-striped table-border table-hover table-responsive bg-white col-md-12" id="tablPro">
+                    <thead>
+                        <tr>
+                            <td class="col-1">#</td>
+                            <td class="col-2">Product</td>
+                             <td class="col-1">ID</td>
+                            <td class="col-1">GEN</td>
+                            <td class="col-1">Category</td>
+                            <td class="col-1">Quntity</td>
+                            <td class="col-1">Price</td>
+                            <td class="col-1">Total</td>
+                            <td class="col-2">Events</td>
+
+                        </tr>
+                    </thead>
+                    <tbody id="tablePro">
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center col-md-12 " style="margin-top: 10px;">
+            <div class="row bg-secondary m-1 block ">
+            <button class="btn btn-dark w-50" style="padding: 5px ;">
+              Cancel Invoice
+            </button>
+            <button class="btn btn-success w-50" onclick="return Valid_Head_Invoice();" id="btnSave" style="padding: 5px ;">
+             Save Invoice
+            </button>
+        </div>
+        </div>
+        </div>
+         
+
+        <!-- End Table -->
+
+    </div>
+    <!-- End container -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Category <span id="countCategory"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                     </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+
+                        <table class="table table-striped table-border table-hover table-responsive bg-white w-100 text-center m-0">
+                            <thead>
+                                <tr>
+                                    <td>#</td>
+                                    <td>Cate</td>
+                                    <td class="col-2">Events</td>
+
+                                </tr>
+                            </thead>
+                            <tbody id="bodyCate">
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
