@@ -1,7 +1,9 @@
 ﻿using System;
+using POSebda3.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,22 +17,28 @@ namespace POSebda3.Apis
     public class BillsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BillsController(ApplicationDbContext context)
+        public BillsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Bills
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bill>>> GetBills()
+        public async Task<ActionResult<IEnumerable<BillDto>>> GetBills()
         {
-            return await _context.Bills.ToListAsync();
+
+            var bills = await _context.Bills.ToListAsync();
+            var billsdto = _mapper.Map<List<BillDto>>(bills);
+            return new JsonResult(billsdto);
+            
         }
 
         // GET: api/Bills/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Bill>> GetBill(int id)
+        public async Task<ActionResult<BillDto>> GetBill(int id)
         {
             var bill = await _context.Bills.FindAsync(id);
 
@@ -38,71 +46,24 @@ namespace POSebda3.Apis
             {
                 return NotFound();
             }
-
-            return bill;
+            var billdto = _mapper.Map<BillDto>(bill);
+            return new JsonResult(billdto);
         }
 
-        // PUT: api/Bills/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBill(int id, Bill bill)
-        {
-            if (id != bill.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(bill).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BillExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+       
 
         // POST: api/Bills
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Bill>> PostBill(Bill bill)
+        public async Task<ActionResult<BillDto>> PostBill(BillDto billDto)
         {
+            var bill = _mapper.Map<Bill>(billDto);
             _context.Bills.Add(bill);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBill", new { id = bill.Id }, bill);
+            return CreatedAtAction("GetBill", new { id = billDto.Id }, billDto);
         }
 
-        // DELETE: api/Bills/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBill(int id)
-        {
-            var bill = await _context.Bills.FindAsync(id);
-            if (bill == null)
-            {
-                return NotFound();
-            }
-
-            _context.Bills.Remove(bill);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool BillExists(int id)
-        {
-            return _context.Bills.Any(e => e.Id == id);
-        }
+       
     }
 }

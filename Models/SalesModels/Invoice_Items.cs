@@ -19,6 +19,6 @@ namespace POSebda3.Models.SalesModels
         public double Amount { get; set; }
 
         public virtual Invoice Invoice { get; set; } = null!;
-        public virtual Product Product { get; set; }=new Product();
+        public virtual Product Product { get; set; }= null!;
     }
 }

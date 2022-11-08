@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using POSebda3.Data;
 using POSebda3.Models.SalesModels;
+using POSebda3.Dtos;
+using AutoMapper;
 
 namespace POSebda3.Apis
 {
@@ -15,22 +17,27 @@ namespace POSebda3.Apis
     public class InvoicesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public InvoicesController(ApplicationDbContext context)
+        public InvoicesController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Invoices
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices()
+        public async Task<ActionResult<IEnumerable<InvoiceDto>>> GetInvoices()
         {
-            return await _context.Invoices.ToListAsync();
+            var invoices = await _context.Invoices.ToListAsync();
+            var invoicesDto = _mapper.Map<List<InvoiceDto>>(invoices);
+            return new JsonResult(invoicesDto);
+           
         }
 
         // GET: api/Invoices/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice>> GetInvoice(int id)
+        public async Task<ActionResult<InvoiceDto>> GetInvoice(int id)
         {
             var invoice = await _context.Invoices.FindAsync(id);
 
@@ -39,70 +46,24 @@ namespace POSebda3.Apis
                 return NotFound();
             }
 
-            return invoice;
+            var invoicesDto = _mapper.Map<InvoiceDto>(invoice);
+            return new JsonResult(invoicesDto);
         }
 
-        // PUT: api/Invoices/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutInvoice(int id, Invoice invoice)
-        {
-            if (id != invoice.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(invoice).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!InvoiceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+     
 
         // POST: api/Invoices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Invoice>> PostInvoice(Invoice invoice)
+        public async Task<ActionResult<InvoiceDto>> PostInvoice(InvoiceDto invoiceDto)
         {
+            var invoice = _mapper.Map<Invoice>(invoiceDto);
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInvoice", new { id = invoice.Id }, invoice);
+            return CreatedAtAction("GetInvoice", new { id = invoiceDto.Id }, invoiceDto);
         }
 
-        // DELETE: api/Invoices/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInvoice(int id)
-        {
-            var invoice = await _context.Invoices.FindAsync(id);
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-
-            _context.Invoices.Remove(invoice);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool InvoiceExists(int id)
-        {
-            return _context.Invoices.Any(e => e.Id == id);
-        }
+       
     }
 }

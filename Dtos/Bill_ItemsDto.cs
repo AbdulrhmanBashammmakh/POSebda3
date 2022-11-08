@@ -2,7 +2,7 @@
 {
     public class Bill_ItemsDto
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
 
 
         public int BillId { get; set; }

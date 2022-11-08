@@ -20,6 +20,6 @@ namespace POSebda3.Models.PurchaseModels
 
         public Bill Bill { get; set; }
 
-        public Product Product { get; set; }= new Product();
+        public Product Product { get; set; } = null!;
     }
 }

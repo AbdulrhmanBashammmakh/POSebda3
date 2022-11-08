@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using POSebda3.Data;
 using POSebda3.Models.PurchaseModels;
+using POSebda3.Dtos;
+using AutoMapper;
 
 namespace POSebda3.Apis
 {
@@ -15,22 +14,27 @@ namespace POSebda3.Apis
     public class BillItemsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BillItemsController(ApplicationDbContext context)
+        public BillItemsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/BillItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bill_Items>>> GetBillItems()
+        public async Task<ActionResult<IEnumerable<Bill_ItemsDto>>> GetBillItems()
         {
-            return await _context.BillItems.ToListAsync();
+            var bills = await _context.BillItems.ToListAsync();
+            var billsdto = _mapper.Map<List<Bill_ItemsDto>>(bills);
+            return new JsonResult(billsdto);
+            
         }
 
         // GET: api/BillItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Bill_Items>> GetBill_Items(int id)
+        public async Task<ActionResult<Bill_ItemsDto>> GetBill_Items(int id)
         {
             var bill_Items = await _context.BillItems.FindAsync(id);
 
@@ -39,70 +43,25 @@ namespace POSebda3.Apis
                 return NotFound();
             }
 
-            return bill_Items;
+            var bill_Itemsdto = _mapper.Map<Bill_ItemsDto>(bill_Items);
+            return new JsonResult(bill_Itemsdto);
         }
 
-        // PUT: api/BillItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBill_Items(int id, Bill_Items bill_Items)
-        {
-            if (id != bill_Items.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(bill_Items).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!Bill_ItemsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+      
 
         // POST: api/BillItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Bill_Items>> PostBill_Items(Bill_Items bill_Items)
+        public async Task<ActionResult<Bill_ItemsDto>> PostBill_Items(Bill_ItemsDto bill_ItemsDto)
         {
+
+            var bill_Items = _mapper.Map<Bill_Items>(bill_ItemsDto);
             _context.BillItems.Add(bill_Items);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetBill_Items", new { id = bill_Items.Id }, bill_Items);
+            return Ok("done");
+          
         }
 
-        // DELETE: api/BillItems/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBill_Items(int id)
-        {
-            var bill_Items = await _context.BillItems.FindAsync(id);
-            if (bill_Items == null)
-            {
-                return NotFound();
-            }
-
-            _context.BillItems.Remove(bill_Items);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool Bill_ItemsExists(int id)
-        {
-            return _context.BillItems.Any(e => e.Id == id);
-        }
+       
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using POSebda3.Data;
 using POSebda3.Models.SalesModels;
+using POSebda3.Dtos;
+using AutoMapper;
 
 namespace POSebda3.Apis
 {
@@ -15,22 +17,27 @@ namespace POSebda3.Apis
     public class InvoiceItemsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public InvoiceItemsController(ApplicationDbContext context)
+        public InvoiceItemsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
-
         // GET: api/InvoiceItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Invoice_Items>>> GetInvoiceItems()
+        public async Task<ActionResult<IEnumerable<Invoice_ItemsDto>>> GetInvoiceItems()
         {
-            return await _context.InvoiceItems.ToListAsync();
+            var invoices = await _context.InvoiceItems.ToListAsync();
+            var invoicesDto = _mapper.Map<List<Invoice_ItemsDto>>(invoices);
+            return new JsonResult(invoicesDto);
+
+            
         }
 
         // GET: api/InvoiceItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice_Items>> GetInvoice_Items(int id)
+        public async Task<ActionResult<Invoice_ItemsDto>> GetInvoice_Items(int id)
         {
             var invoice_Items = await _context.InvoiceItems.FindAsync(id);
 
@@ -38,71 +45,25 @@ namespace POSebda3.Apis
             {
                 return NotFound();
             }
-
-            return invoice_Items;
+            var invoice_Itemsdto = _mapper.Map<Invoice_ItemsDto>(invoice_Items);
+            return new JsonResult(invoice_Itemsdto);
+         
         }
 
-        // PUT: api/InvoiceItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutInvoice_Items(int id, Invoice_Items invoice_Items)
-        {
-            if (id != invoice_Items.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(invoice_Items).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!Invoice_ItemsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+    
 
         // POST: api/InvoiceItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Invoice_Items>> PostInvoice_Items(Invoice_Items invoice_Items)
+        public async Task<ActionResult<Invoice_ItemsDto>> PostInvoice_Items(Invoice_ItemsDto invoice_ItemsDto)
         {
+            var invoice_Items= _mapper.Map<Invoice_Items>(invoice_ItemsDto);
             _context.InvoiceItems.Add(invoice_Items);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInvoice_Items", new { id = invoice_Items.Id }, invoice_Items);
+            return CreatedAtAction("GetInvoice_Items", new { id = invoice_ItemsDto.Id }, invoice_ItemsDto);
         }
 
-        // DELETE: api/InvoiceItems/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInvoice_Items(int id)
-        {
-            var invoice_Items = await _context.InvoiceItems.FindAsync(id);
-            if (invoice_Items == null)
-            {
-                return NotFound();
-            }
-
-            _context.InvoiceItems.Remove(invoice_Items);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool Invoice_ItemsExists(int id)
-        {
-            return _context.InvoiceItems.Any(e => e.Id == id);
-        }
+     
     }
 }
