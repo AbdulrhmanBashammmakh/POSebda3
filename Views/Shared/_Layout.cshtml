@@ -19,10 +19,51 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">التعليمات</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                      <li class="dropdown nav-item">
+                                <a class="dropdown-toggle nav-link text-dark" data-toggle="dropdown" href="#">
+                                    البضاعة
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="products">البضاعة</a></li>
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="Categories">الاصناف</a></li>
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="Inventories">المخزون</a></li>
+
+                                </ul>
+                            </li>
+
+                            <li class="dropdown nav-item">
+                                <a class="dropdown-toggle nav-link text-dark" data-toggle="dropdown" href="#">
+                                    المشتريات
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="Vendors">الموردين</a></li>
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="Bills">فواتير الشراء</a></li>
+                        
+                                </ul>
+                            </li>
+
+                            <li class="dropdown nav-item">
+                                <a class="dropdown-toggle nav-link text-dark" data-toggle="dropdown" href="#">
+                                    المبيعات
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                   
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="Invoices">فواتير البيع</a></li>
+                                    <li><a class="nav-link text-dark" asp-action="Index" asp-controller="LineOrders">البيع المباشر</a></li>
+                                                    
+                                   
+
+                                </ul>
+                            </li>
+
+                             <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
                     </ul>
                 </div>
@@ -42,7 +83,7 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

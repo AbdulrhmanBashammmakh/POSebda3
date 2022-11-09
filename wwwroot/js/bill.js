@@ -15,13 +15,14 @@ function squence() {
     AjaxSaveHead();
     insert();
     alert("Handler for .click() called.");
+    location.reload();
 };
 
 function AjaxSaveHead() {
 
     var objBill = {
-        vendorId: parseInt(ddlsupplierId.value), billDate: new Date("2022/03/25"),
-        total: TotalFullProduct(), id: parseInt(geneId.value) 
+        vendorId: parseInt(ddlsupplierId.value), billDate: new Date(),
+        total: parseInt(TotalInvoiceid.value), id: parseInt(geneId.value) 
     };
    // console.log(objBill);
     let data = JSON.stringify(objBill);
@@ -31,6 +32,7 @@ function AjaxSaveHead() {
     $.ajax({
         url: '/api/bills',
         method: 'POST',
+        async: true,
         contentType: 'application/json',
         data: data,
         cache: false,
@@ -44,7 +46,7 @@ function AjaxSaveHead() {
 
 
 
-async function insert() {
+ function insert() {
     for (let x = 0; x < ProductArry.length; x++) {
         var objdetialBill = {
             productId: parseInt(ProductArry[x].ProductId), rate: parseInt(ProductArry[x].Price), quantity: parseInt(ProductArry[x].Quntity),
@@ -53,9 +55,10 @@ async function insert() {
        // console.log(objdetialBill);
         let data = JSON.stringify(objdetialBill);
         console.log(data);
-        await $.ajax({
+         $.ajax({
             url: '/api/BillItems',
-            method: 'POST',
+             method: 'POST',
+             async: true,
             contentType: 'application/json',
             data: data,
             cache: false,
@@ -192,9 +195,7 @@ function ShowTableProduct() {
                 <td>${ProductArry[x].Price}</td>
                 <td>${ProductArry[x].Total}</td>
                 <td>
-                    <button class="btn btn-info" onclick="EditProduct(${x})">
-                        <i class="fas fa-edit">تعديل</i>
-                    </button>
+                   
                     <button class="btn btn-danger" onclick="DeleteProduct(${x})">
                         <i class="fas fa-trash">حذف</i>
                     </button>

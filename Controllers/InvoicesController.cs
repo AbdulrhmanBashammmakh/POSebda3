@@ -7,26 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using POSebda3.Data;
 using POSebda3.Models.SalesModels;
+using POSebda3.VMs;
 
 namespace POSebda3.Controllers
 {
-    public class LineOrdersController : Controller
+    public class InvoicesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public LineOrdersController(ApplicationDbContext context)
+        public InvoicesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: LineOrders
+        // GET: Invoices
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.LineOrders.Include(l => l.Product);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Invoices.ToListAsync());
         }
 
-        // GET: LineOrders/Details/5
+        // GET: Invoices/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +34,46 @@ namespace POSebda3.Controllers
                 return NotFound();
             }
 
-            var lineOrder = await _context.LineOrders
-                .Include(l => l.Product)
+            var invoice = await _context.Invoices
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (lineOrder == null)
+            if (invoice == null)
             {
                 return NotFound();
             }
 
-            return View(lineOrder);
+            return View(invoice);
         }
 
-        // GET: LineOrders/Create
+        // GET: Invoices/Create
         public IActionResult Create()
         {
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name");
-            return View();
+            return View(new SalesViewModels
+            {
+                CategoryList = _context.Categories.ToList()
+            });
         }
 
-        // POST: LineOrders/Create
+        // POST: Invoices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+      
+        /*
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProductId,Quantity,Rate,Amount,OrderDate")] LineOrder lineOrder)
+        public async Task<IActionResult> Create([Bind("Id,Total,CustomerName,invoiceDate")] Invoice invoice)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(lineOrder);
+                _context.Add(invoice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", lineOrder.ProductId);
-            return View(lineOrder);
+            return View(invoice);
         }
 
-        // GET: LineOrders/Edit/5
+        */
+
+        // GET: Invoices/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +81,22 @@ namespace POSebda3.Controllers
                 return NotFound();
             }
 
-            var lineOrder = await _context.LineOrders.FindAsync(id);
-            if (lineOrder == null)
+            var invoice = await _context.Invoices.FindAsync(id);
+            if (invoice == null)
             {
                 return NotFound();
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", lineOrder.ProductId);
-            return View(lineOrder);
+            return View(invoice);
         }
 
-        // POST: LineOrders/Edit/5
+        // POST: Invoices/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,Quantity,Rate,Amount,OrderDate")] LineOrder lineOrder)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Total,CustomerName,invoiceDate")] Invoice invoice)
         {
-            if (id != lineOrder.Id)
+            if (id != invoice.Id)
             {
                 return NotFound();
             }
@@ -102,12 +105,12 @@ namespace POSebda3.Controllers
             {
                 try
                 {
-                    _context.Update(lineOrder);
+                    _context.Update(invoice);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LineOrderExists(lineOrder.Id))
+                    if (!InvoiceExists(invoice.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +121,10 @@ namespace POSebda3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", lineOrder.ProductId);
-            return View(lineOrder);
+            return View(invoice);
         }
 
-        // GET: LineOrders/Delete/5
+        // GET: Invoices/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,31 +132,30 @@ namespace POSebda3.Controllers
                 return NotFound();
             }
 
-            var lineOrder = await _context.LineOrders
-                .Include(l => l.Product)
+            var invoice = await _context.Invoices
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (lineOrder == null)
+            if (invoice == null)
             {
                 return NotFound();
             }
 
-            return View(lineOrder);
+            return View(invoice);
         }
 
-        // POST: LineOrders/Delete/5
+        // POST: Invoices/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lineOrder = await _context.LineOrders.FindAsync(id);
-            _context.LineOrders.Remove(lineOrder);
+            var invoice = await _context.Invoices.FindAsync(id);
+            _context.Invoices.Remove(invoice);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LineOrderExists(int id)
+        private bool InvoiceExists(int id)
         {
-            return _context.LineOrders.Any(e => e.Id == id);
+            return _context.Invoices.Any(e => e.Id == id);
         }
     }
 }

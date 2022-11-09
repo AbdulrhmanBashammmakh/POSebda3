@@ -16,16 +16,17 @@ function squence() {
     AjaxSaveHead();
     insert();
     alert("Handler for .click() called.");
+    location.reload();
 };
 
 function AjaxSaveHead() {
 
     var objInvoice = {
-        debitOrCashId: ddlpayment.value, customerId: ddlcustomer.value,
-        Total: TotalFullProduct(), gn: geneId.value
+        customerName: customerNameId.value, invoiceDate: new Date(),
+        total: parseInt(TotalInvoiceid.value), id: parseInt(geneId.value) 
     };
     console.log(objInvoice);
-    let data = JSON.stringify(objBill);
+    let data = JSON.stringify(objInvoice);
     $.ajax({
         url: '/api/Invoices',
         method: 'POST',
@@ -45,13 +46,13 @@ function AjaxSaveHead() {
 function insert() {
     for (let x = 0; x < ProductArry.length; x++) {
         var objdetialinvoice = {
-            itemId: ProductArry[x].ProductId, rate: ProductArry[x].Price, quantity: ProductArry[x].Quntity,
-            amount: ProductArry[x].Total, gn: geneId.value
+            productId: parseInt(ProductArry[x].ProductId), rate: parseInt(ProductArry[x].Price), quantity: parseInt(ProductArry[x].Quntity),
+            amount: ProductArry[x].Total, invoiceId: parseInt(geneId.value)
         };
         console.log(objdetialinvoice);
         let data = JSON.stringify(objdetialinvoice);
         $.ajax({
-            url: '/api/ItemDetails',
+            url: '/api/InvoiceItems',
             method: 'POST',
             contentType: 'application/json',
             data: data,
@@ -82,7 +83,7 @@ ShowProduct = () => {
         var mm = ddlCategoryId.value;
         console.log(mm);
         $.ajax({
-            url: `/Api/GetAlls/` + mm,
+            url: `/Api/values/` + mm,
             method: 'GET',
             cache: false,
             success: (data) => {
@@ -103,7 +104,7 @@ ShowProduct = () => {
 
 ShowPrice = () => {
     $.ajax({
-        url: `/Api/Stacks/${$('#ddlProduct').val()}`,
+        url: `/Api/Inventories/${$('#ddlProduct').val()}`,
         method: 'GET',
         cache: false,
         success: (data) => {
@@ -202,11 +203,9 @@ function ShowTableProduct() {
               
                 <td>${ProductArry[x].Total}</td>
                 <td>
-                    <button class="btn btn-info" onclick="EditProduct(${x})">
-                        <i class="fas fa-edit"></i>
-                    </button>
+                  
                     <button class="btn btn-danger" onclick="DeleteProduct(${x})">
-                        <i class="fas fa-trash"></i>
+                        ازالة
                     </button>
                 </td>
         </tr>`;

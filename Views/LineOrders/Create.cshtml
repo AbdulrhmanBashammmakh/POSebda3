@@ -4,38 +4,47 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
 
-<h4>LineOrder</h4>
+
+<h4>البيع المباشر </h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
+     <div class="form-group">
+                <label  class="control-label"> الكمية المتوفرة </label>
+                <input  id ="AvaQty" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label  class="control-label"> تأكيد الكمية  </label>
+                <input  id ="checkingId" class="form-control" readonly value="0" />
+            </div>
+              </div>
+    <div class="col-md-8">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <select asp-for="ProductId" class ="form-control" asp-items="ViewBag.ProductId"></select>
+                <label asp-for="ProductId" class="control-label">المنتج</label>
+                <select asp-for="ProductId" id="ddProductId" class ="form-control" asp-items="ViewBag.ProductId" onchange="ShowPrice()">
+                      <option value="">أختر أسم الصنف</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Rate" class="control-label"></label>
-                <input asp-for="Rate" class="form-control" />
+             <div class="form-group">
+                <label asp-for="Rate" class="control-label">السعر</label>
+                <input asp-for="Rate" id=ddRateId class="form-control" />
                 <span asp-validation-for="Rate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
+                <label asp-for="Quantity" class="control-label">الكمية المطلوبة</label>
+                <input asp-for="Quantity" id=ddQuantityId class="form-control" onchange="multip()" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+           
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label">الاجمالي</label>
+                <input asp-for="Amount" id="amountId" class="form-control" value="0" readonly />
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
+        
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -46,7 +55,36 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+<script>
+function ShowPrice() {
+    var mm = ddProductId.value;
+     $.ajax({
+            url: `/Api/Inventories/` + mm,
+            method: 'GET',
+            cache: false,
+            success: (data) => {
+            console.log(JSON.stringify(data));
+            $('#ddRateId').val(data.sellingPrice);
+            $('#AvaQty').val(data.avaQuantity);
+            }
+        });
+};
+    function multip(){
+        var qty = $('#ddQuantityId').val();
+    var price = $('#ddRateId').val();
+    var qtyAva= $('#AvaQty').val();
+    
+    var total = parseFloat(qty) * parseFloat(price);
+         $('#amountId').val(total)
+          console.log(total);
+           var mi=  parseFloat(qtyAva) - parseFloat(qty);
+    $('#checkingId').val(mi.toString());
+     console.log(mi);
+};
 
+
+
+</script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
